@@ -112,7 +112,7 @@ class Grafo {
 }
 
 // ==========================================
-// 1. BUSCA GULOSA (Foco na Heurística)
+// 1. BUSCA GULOSA
 // ==========================================
 class Gulosa {
     constructor(objetivo) {
@@ -126,7 +126,7 @@ class Gulosa {
         this.caminho.push(atual.rotulo);
 
         if (atual === this.objetivo) {
-            return { caminho: this.caminho, distancia: this.distanciaTotal };
+            return { nome: "Gulosa", caminho: this.caminho, distancia: this.distanciaTotal, qtdCidades: this.caminho.length };
         }
 
         let cidadesPossiveis = atual.adjacentes.filter(adj => !adj.vertice.visitado);
@@ -135,12 +135,12 @@ class Gulosa {
         if (cidadesPossiveis.length > 0) {
             return this.buscar(cidadesPossiveis[0].vertice, cidadesPossiveis[0].custo);
         }
-        return { caminho: this.caminho, distancia: this.distanciaTotal };
+        return { nome: "Gulosa", caminho: this.caminho, distancia: this.distanciaTotal, qtdCidades: this.caminho.length };
     }
 }
 
 // ==========================================
-// 2. BUSCA A* (Foco no Custo Real + Heurística)
+// 2. BUSCA A*
 // ==========================================
 class AEstrela {
     constructor(objetivo) { this.objetivo = objetivo; }
@@ -160,7 +160,8 @@ class AEstrela {
             const atual = openSet.shift();
 
             if (atual === this.objetivo) {
-                return { caminho: this.reconstruirCaminho(atual), distancia: atual.g };
+                const caminhoFinal = this.reconstruirCaminho(atual);
+                return { nome: "A* (A-Estrela)", caminho: caminhoFinal, distancia: atual.g, qtdCidades: caminhoFinal.length };
             }
 
             closedSet.add(atual);
@@ -183,7 +184,7 @@ class AEstrela {
 }
 
 // ==========================================
-// 3. BUSCA EM LARGURA (Foco em Níveis/Qtd de Cidades)
+// 3. BUSCA EM LARGURA
 // ==========================================
 class Largura {
     constructor(objetivo) { this.objetivo = objetivo; }
@@ -201,7 +202,8 @@ class Largura {
             const atual = fila.shift();
             
             if (atual === this.objetivo) {
-                return { caminho: this.reconstruirCaminho(atual), distancia: atual.g };
+                const caminhoFinal = this.reconstruirCaminho(atual);
+                return { nome: "Largura", caminho: caminhoFinal, distancia: atual.g, qtdCidades: caminhoFinal.length };
             }
 
             atual.adjacentes.forEach(adj => {
@@ -209,7 +211,7 @@ class Largura {
                 if (!vizinho.visitado) {
                     vizinho.visitado = true;
                     vizinho.pai = atual;
-                    vizinho.g = atual.g + adj.custo; // Apenas calculamos para exibir no final
+                    vizinho.g = atual.g + adj.custo;
                     fila.push(vizinho);
                 }
             });
@@ -219,51 +221,62 @@ class Largura {
 }
 
 // ==========================================
-// SCRIPT DE COMPARAÇÃO FINAL
+// MOTOR DE ANÁLISE DINÂMICA E EXECUÇÃO
 // ==========================================
 console.log("\n=========================================================================");
-console.log("🏁 COMPARATIVO DE ROTAS E CUSTOS: ARAD -> BUCHAREST 🏁");
+console.log("🏁 INICIANDO COMPETIÇÃO DOS ALGORITMOS: ARAD -> BUCHAREST 🏁");
 console.log("=========================================================================\n");
 
-// Instanciando os mapas separados para não haver conflito de memória
 const mapaGulosa = new Grafo();
 const mapaAEstrela = new Grafo();
 const mapaLargura = new Grafo();
 
-// Rodando Gulosa
-const resultadoGulosa = new Gulosa(mapaGulosa.Bucharest).buscar(mapaGulosa.Arad);
-
-// Rodando A*
-const resultadoAEstrela = new AEstrela(mapaAEstrela.Bucharest).buscar(mapaAEstrela.Arad);
-
-// Rodando Largura
-const resultadoLargura = new Largura(mapaLargura.Bucharest).buscar(mapaLargura.Arad);
-
-// Montando a tabela de comparação
-const dadosComparativos = [
-    {
-        "Algoritmo": "1. Gulosa",
-        "Base de Decisão": "Apenas Heurística (h)",
-        "Caminho Encontrado": resultadoGulosa.caminho.join(" ➔ "),
-        "Distância Final": `${resultadoGulosa.distancia} km`
-    },
-    {
-        "Algoritmo": "2. A* (A-Estrela)",
-        "Base de Decisão": "Estrada Real + Heurística (g + h)",
-        "Caminho Encontrado": resultadoAEstrela.caminho.join(" ➔ "),
-        "Distância Final": `${resultadoAEstrela.distancia} km`
-    },
-    {
-        "Algoritmo": "3. Largura",
-        "Base de Decisão": "Menor N° de Cidades (Estrada é ignorada na decisão)",
-        "Caminho Encontrado": resultadoLargura.caminho.join(" ➔ "),
-        "Distância Final": `${resultadoLargura.distancia} km`
-    }
+const resultados = [
+    new Gulosa(mapaGulosa.Bucharest).buscar(mapaGulosa.Arad),
+    new AEstrela(mapaAEstrela.Bucharest).buscar(mapaAEstrela.Arad),
+    new Largura(mapaLargura.Bucharest).buscar(mapaLargura.Arad)
 ];
 
-console.table(dadosComparativos);
+// Montando tabela base
+const dadosParaTabela = resultados.map(r => ({
+    "Algoritmo": r.nome,
+    "Cidades Percorridas (Nós)": r.qtdCidades,
+    "Distância Total": `${r.distancia} km`,
+    "Rota": r.caminho.join(" ➔ ")
+}));
 
-console.log("\n💡 CONCLUSÃO DO DIAGNÓSTICO:");
-console.log("-> O A* se provou o mais eficiente encontrando o caminho mais curto (418 km), pois ponderou tanto o esforço feito quanto a estimativa restante.");
-console.log("-> A Busca Gulosa fez o caminho mais longo (450 km) porque foi 'enganada' pela cidade de Fagaras, que parecia mais perto em linha reta, mas a estrada real era pior.");
-console.log("-> A Busca em Largura também caiu em Fagaras (450 km), mas por um motivo diferente: ela procurou a rota com o MENOR NÚMERO DE CIDADES, ignorando totalmente a quilometragem da estrada.\n");
+console.table(dadosParaTabela);
+
+// ==========================================
+// AVALIAÇÃO COMPUTACIONAL DOS RESULTADOS
+// ==========================================
+console.log("\n🤖 ANÁLISE DINÂMICA GERADA PELO SISTEMA:");
+
+// 1. Descobrindo dinamicamente a melhor rota em quilometragem
+const menorDistancia = Math.min(...resultados.map(r => r.distancia));
+const vencedoresDistancia = resultados.filter(r => r.distancia === menorDistancia);
+
+console.log(`\n🏆 Vencedor em Distância Real (${menorDistancia} km):`);
+vencedoresDistancia.forEach(v => {
+    console.log(`   -> A busca ${v.nome} encontrou o caminho mais curto fisicamente.`);
+});
+
+// 2. Descobrindo dinamicamente a melhor rota em saltos (quantidade de cidades)
+const menorQtdCidades = Math.min(...resultados.map(r => r.qtdCidades));
+const vencedoresCidades = resultados.filter(r => r.qtdCidades === menorQtdCidades);
+
+console.log(`\n🚀 Vencedor em Menor Quantidade de Cidades (${menorQtdCidades} nós):`);
+vencedoresCidades.forEach(v => {
+    console.log(`   -> A busca ${v.nome} encontrou o trajeto fazendo menos conexões.`);
+});
+
+// 3. Identificando falhas ou miopia (Caminhos mais longos)
+const maiorDistancia = Math.max(...resultados.map(r => r.distancia));
+if (maiorDistancia > menorDistancia) {
+    const piores = resultados.filter(r => r.distancia === maiorDistancia);
+    console.log(`\n⚠️ Diagnóstico de Eficiência:`);
+    piores.forEach(p => {
+        console.log(`   -> A busca ${p.nome} percorreu ${p.distancia} km (${p.distancia - menorDistancia} km a mais que o ideal). Isso comprova sua limitação no critério de decisão.`);
+    });
+}
+console.log("\n=========================================================================\n");
