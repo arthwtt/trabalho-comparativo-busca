@@ -224,7 +224,7 @@ class Largura {
 // MOTOR DE ANÁLISE DINÂMICA E EXECUÇÃO
 // ==========================================
 console.log("\n=========================================================================");
-console.log("🏁 INICIANDO COMPETIÇÃO DOS ALGORITMOS: ARAD -> BUCHAREST 🏁");
+console.log("INICIANDO COMPETIÇÃO DOS ALGORITMOS: ARAD -> BUCHAREST");
 console.log("=========================================================================\n");
 
 const mapaGulosa = new Grafo();
@@ -250,13 +250,13 @@ console.table(dadosParaTabela);
 // ==========================================
 // AVALIAÇÃO COMPUTACIONAL DOS RESULTADOS
 // ==========================================
-console.log("\n🤖 ANÁLISE DINÂMICA GERADA PELO SISTEMA:");
+console.log("\nANÁLISE DINÂMICA GERADA PELO SISTEMA:");
 
 // 1. Descobrindo dinamicamente a melhor rota em quilometragem
 const menorDistancia = Math.min(...resultados.map(r => r.distancia));
 const vencedoresDistancia = resultados.filter(r => r.distancia === menorDistancia);
 
-console.log(`\n🏆 Vencedor em Distância Real (${menorDistancia} km):`);
+console.log(`\nVencedor em Distância Real (${menorDistancia} km):`);
 vencedoresDistancia.forEach(v => {
     console.log(`   -> A busca ${v.nome} encontrou o caminho mais curto fisicamente.`);
 });
@@ -265,7 +265,7 @@ vencedoresDistancia.forEach(v => {
 const menorQtdCidades = Math.min(...resultados.map(r => r.qtdCidades));
 const vencedoresCidades = resultados.filter(r => r.qtdCidades === menorQtdCidades);
 
-console.log(`\n🚀 Vencedor em Menor Quantidade de Cidades (${menorQtdCidades} nós):`);
+console.log(`\nVencedor em Menor Quantidade de Cidades (${menorQtdCidades} nós):`);
 vencedoresCidades.forEach(v => {
     console.log(`   -> A busca ${v.nome} encontrou o trajeto fazendo menos conexões.`);
 });
@@ -274,7 +274,7 @@ vencedoresCidades.forEach(v => {
 const maiorDistancia = Math.max(...resultados.map(r => r.distancia));
 if (maiorDistancia > menorDistancia) {
     const piores = resultados.filter(r => r.distancia === maiorDistancia);
-    console.log(`\n⚠️ Diagnóstico de Eficiência:`);
+    console.log(`\nDiagnóstico de Eficiência:`);
     piores.forEach(p => {
         console.log(`   -> A busca ${p.nome} percorreu ${p.distancia} km (${p.distancia - menorDistancia} km a mais que o ideal). Isso comprova sua limitação no critério de decisão.`);
     });
