@@ -12,7 +12,6 @@ class Vertice {
         this.visitado = false;
         this.adjacentes = [];
         this.g = Infinity;
-        this.f = Infinity;
         this.pai = null;
     }
 
@@ -140,13 +139,13 @@ class Largura {
 
         while (fila.length > 0) {
             const atual = fila.shift();
-            console.log('\nExplorando nó:', atual.rotulo);
+            console.log(`\nExplorando no: ${atual.rotulo}`);
 
             if (atual === this.objetivo) {
                 const caminho = this.reconstruirCaminho(atual);
                 console.log('\nObjetivo encontrado!');
                 console.log(`Caminho: ${caminho.join(' -> ')}`);
-                console.log(`Distância total percorrida: ${atual.g} km`);
+                console.log(`Distancia total percorrida: ${atual.g} km`);
                 return;
             }
 
@@ -158,12 +157,11 @@ class Largura {
                     vizinho.pai = atual;
                     vizinho.g = atual.g + adj.custo;
                     fila.push(vizinho);
-                    console.log(`  Vizinhança: ${vizinho.rotulo} (custo aresta: ${adj.custo}, g=${vizinho.g})`);
+                    console.log(`  Adicionado a fila: ${vizinho.rotulo} (g=${vizinho.g})`);
                 }
             });
         }
-
-        console.log('\nNão foi possível encontrar um caminho até o objetivo.');
+        console.log('\nNao foi possivel encontrar um caminho ate o objetivo.');
     }
 }
 
